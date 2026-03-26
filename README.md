@@ -7,7 +7,8 @@ This repository contains a Python-based tool to generate a Scope of Work (SOW) d
 - Reads project details from a YAML file
 - Generates a comprehensive SOW in Markdown format
 - Generates a PDF from an existing Markdown document
-- Supports a one-command demo pipeline using `demos/yaml`, `demos/md`, and `demos/pdf`
+- Supports a clean one-command demo pipeline using `demos/yaml`, `demos/md`, and `demos/pdf`
+- Includes a GitHub Actions workflow that can be triggered from `gh`
 - Keeps document content in YAML and uses Python as a renderer
 - Adds a generated table of contents at the top of the SOW
 - Uses Gherkin syntax for user stories
@@ -53,13 +54,13 @@ This will install the required Python dependencies.
 Windows:
 
 ```bat
-py sow_generator.py <path_to_yaml>
+py -m src.sow_generator.cli.generate_sow <path_to_yaml>
 ```
 
 Mac/Linux:
 
 ```bash
-python3 sow_generator.py <path_to_yaml>
+python3 -m src.sow_generator.cli.generate_sow <path_to_yaml>
 ```
 
 3. The `sow.md` file will be generated in the current directory.
@@ -68,13 +69,13 @@ python3 sow_generator.py <path_to_yaml>
 Windows:
 
 ```bat
-py sow_generator.py <path_to_yaml> --output custom-sow.md
+py -m src.sow_generator.cli.generate_sow <path_to_yaml> --output custom-sow.md
 ```
 
 Mac/Linux:
 
 ```bash
-python3 sow_generator.py <path_to_yaml> --output custom-sow.md
+python3 -m src.sow_generator.cli.generate_sow <path_to_yaml> --output custom-sow.md
 ```
 
 5. Convert a Markdown file to PDF:
@@ -82,13 +83,13 @@ python3 sow_generator.py <path_to_yaml> --output custom-sow.md
 Windows:
 
 ```bat
-py markdown_to_pdf.py <path_to_markdown>
+py -m src.sow_generator.cli.markdown_to_pdf <path_to_markdown>
 ```
 
 Mac/Linux:
 
 ```bash
-python3 markdown_to_pdf.py <path_to_markdown>
+python3 -m src.sow_generator.cli.markdown_to_pdf <path_to_markdown>
 ```
 
 6. Optionally provide a custom PDF output path:
@@ -96,39 +97,55 @@ python3 markdown_to_pdf.py <path_to_markdown>
 Windows:
 
 ```bat
-py markdown_to_pdf.py <path_to_markdown> --output custom-sow.pdf
+py -m src.sow_generator.cli.markdown_to_pdf <path_to_markdown> --output custom-sow.pdf
 ```
 
 Mac/Linux:
 
 ```bash
-python3 markdown_to_pdf.py <path_to_markdown> --output custom-sow.pdf
+python3 -m src.sow_generator.cli.markdown_to_pdf <path_to_markdown> --output custom-sow.pdf
 ```
 
-7. Build the demo files using the `demos` folder structure:
+7. Build all demo files and clean old outputs first:
 
 Windows:
 
 ```bat
-py generate_demo_documents.py
+py -m src.sow_generator.cli.generate_demo_documents --clean
 ```
 
 Mac/Linux:
 
 ```bash
-python3 generate_demo_documents.py
+python3 -m src.sow_generator.cli.generate_demo_documents --clean
 ```
 
 This maps:
 
 - `demos/yaml/*.yaml` to `demos/md/*-sow.md`
-- `demos/md/*.md` to `demos/pdf/*.pdf`
+- `demos/yaml/*.yaml` to `demos/pdf/*-sow.pdf`
+
+It also deletes existing `*.md` files in `demos/md` and `*.pdf` files in `demos/pdf` before rebuilding.
+
+8. Trigger the GitHub Actions version from GitHub CLI:
+
+```bash
+gh workflow run build-demo-documents.yml
+```
+
+After the run finishes, you can download the generated artifacts with:
+
+```bash
+gh run download --name demo-documents
+```
 
 ## Project Structure
 
-- `sow_generator.py`: Main script to generate the SOW
-- `markdown_to_pdf.py`: Converts Markdown documents into styled PDFs
-- `generate_demo_documents.py`: Builds demo Markdown and PDF files from the `demos/` folders
+- `src/sow_generator/markdown.py`: Core Markdown SOW generation logic
+- `src/sow_generator/pdf.py`: Markdown-to-PDF rendering logic
+- `src/sow_generator/demo.py`: Demo build orchestration for `demos/`
+- `src/sow_generator/cli/`: CLI entrypoints for generating SOWs, PDFs, and demo outputs
+- `.github/workflows/build-demo-documents.yml`: GitHub Actions workflow for `gh workflow run`
 - `demos/yaml/sample.yaml`: Example YAML configuration
 - `requirements.txt`: Python dependencies
 - `install.sh`: Installation script

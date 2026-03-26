@@ -29,9 +29,10 @@ Feature: Generate a scope of work document
     Then the PDF command fails
     And the PDF error mentions the missing input file
 
-  Scenario: Generate demo markdown and PDF files from the demos folder structure
-    Given demo directories with a sample YAML file
-    When I generate the demo documents
+  Scenario: Generate all demo markdown and PDF files from the demos folder structure
+    Given demo directories with multiple YAML files and stale outputs
+    When I generate the demo documents with clean mode
     Then the demo document command succeeds
-    And the demo markdown file is created
-    And the demo PDF file is created
+    And the demo markdown files are created for each YAML file
+    And the demo PDF files are created for each YAML file
+    And stale demo outputs are removed

@@ -5,7 +5,8 @@ This folder is reserved for supplementary documentation and future GitHub Wiki c
 ## Current Contents
 
 - Project usage is documented in the repository root `README.md`.
-- Example input data is available in `sample.yaml`.
+- Example input data is available in `demos/yaml/sample.yaml`.
+- Source code and CLI entrypoints now live under `src/sow_generator/`.
 - Gherkin-style acceptance tests live under `tests/`.
 
 ## Planned Additions
