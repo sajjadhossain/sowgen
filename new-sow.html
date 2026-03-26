@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New SOW Form</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <style>
+    body {
+      background: #f8fafc;
+    }
+
+    .section-card {
+      border: 0;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .section-title {
+      letter-spacing: 0.02em;
+    }
+
+    .subsection {
+      border: 1px solid #dbe4f0;
+      border-radius: 0.85rem;
+      background: #ffffff;
+    }
+
+    .array-item {
+      border: 1px dashed #cbd5e1;
+      border-radius: 0.85rem;
+      background: #f8fafc;
+    }
+
+    .sticky-panel {
+      position: sticky;
+      top: 1rem;
+    }
+
+    textarea.code-preview {
+      min-height: 70vh;
+      font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4 px-lg-4">
+    <div class="row g-4">
+      <div class="col-xl-8">
+        <div class="mb-4">
+          <h1 class="display-6 fw-semibold mb-2">New SOW Builder</h1>
+          <p class="text-secondary mb-0">
+            Fill out the form, add rows for each YAML section, and generate a ready-to-save YAML document.
+          </p>
+        </div>
+
+        <form id="sow-form" class="d-flex flex-column gap-4">
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <h2 class="h4 section-title mb-3">Project</h2>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Project Name</label>
+                  <input class="form-control" name="project.name" value="Sample Software Development Project">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Client</label>
+                  <input class="form-control" name="project.client" value="ABC Corporation">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Start Date</label>
+                  <input class="form-control" name="project.start_date" value="2026-04-01">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">End Date</label>
+                  <input class="form-control" name="project.end_date" value="2026-06-30">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" rows="3" name="project.description">Develop a web-based task management application for small teams using modern technologies.</textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 section-title mb-0">Team Members</h2>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="team-members">Add Member</button>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Team Size</label>
+                <input class="form-control" name="team.size" value="4">
+              </div>
+              <div id="team-members" class="d-flex flex-column gap-3"></div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <h2 class="h4 section-title mb-3">Kanban</h2>
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="3" name="kanban.description">This project will follow a Kanban workflow tuned for a small development team.</textarea>
+              </div>
+              <div class="subsection p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h3 class="h5 mb-0">Columns</h3>
+                  <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="kanban-columns">Add Column</button>
+                </div>
+                <div id="kanban-columns" class="d-flex flex-column gap-3"></div>
+              </div>
+              <div class="subsection p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h3 class="h5 mb-0">Principles</h3>
+                  <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="kanban-principles">Add Principle</button>
+                </div>
+                <div id="kanban-principles" class="d-flex flex-column gap-3"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 section-title mb-0">User Stories</h2>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="user-stories">Add User Story</button>
+              </div>
+              <div id="user-stories" class="d-flex flex-column gap-3"></div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 section-title mb-0">Deliverables</h2>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="deliverables">Add Deliverable</button>
+              </div>
+              <div id="deliverables" class="d-flex flex-column gap-3"></div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 section-title mb-0">Milestones</h2>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="milestones">Add Milestone</button>
+              </div>
+              <div id="milestones" class="d-flex flex-column gap-3"></div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <h2 class="h4 section-title mb-3">Pricing</h2>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Hourly Rate</label>
+                  <input class="form-control" name="pricing.hourly_rate" value="75.00">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Overhead</label>
+                  <input class="form-control" name="pricing.overhead" value="0.25">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Profit Margin</label>
+                  <input class="form-control" name="pricing.profit_margin" value="0.20">
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 section-title mb-0">Assumptions and Constraints</h2>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="assumptions">Add Row</button>
+              </div>
+              <div id="assumptions" class="d-flex flex-column gap-3"></div>
+            </div>
+          </section>
+
+          <section class="card section-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 section-title mb-0">Risk Management</h2>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-add-array-item="risks">Add Row</button>
+              </div>
+              <div id="risks" class="d-flex flex-column gap-3"></div>
+            </div>
+          </section>
+        </form>
+      </div>
+
+      <div class="col-xl-4">
+        <div class="sticky-panel">
+          <div class="card section-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">YAML Preview</h2>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary btn-sm" type="button" id="generate-yaml">Generate YAML</button>
+                  <button class="btn btn-success btn-sm" type="button" id="save-yaml">Save to YAML Folder</button>
+                  <button class="btn btn-outline-secondary btn-sm" type="button" id="download-yaml">Download</button>
+                </div>
+              </div>
+              <p class="small text-secondary mb-3">
+                "Save to YAML Folder" uses the browser File System Access API and will ask you to pick your `demos/yaml` folder.
+              </p>
+              <textarea id="yaml-preview" class="form-control code-preview" spellcheck="false"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <template id="team-member-template">
+    <div class="array-item p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <strong>Team Member</strong>
+        <button class="btn btn-outline-danger btn-sm" type="button" data-remove-item>Remove</button>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Role</label><input class="form-control" data-field="role"></div>
+        <div class="col-md-6"><label class="form-label">Name</label><input class="form-control" data-field="name"></div>
+        <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" data-field="email"></div>
+        <div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" data-field="phone"></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="key-description-template">
+    <div class="array-item p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <strong>Row</strong>
+        <button class="btn btn-outline-danger btn-sm" type="button" data-remove-item>Remove</button>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Key</label><input class="form-control" data-field="key"></div>
+        <div class="col-md-8"><label class="form-label">Description</label><textarea class="form-control" rows="2" data-field="description"></textarea></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="story-template">
+    <div class="array-item p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <strong>User Story</strong>
+        <button class="btn btn-outline-danger btn-sm" type="button" data-remove-item>Remove</button>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">ID</label><input class="form-control" data-field="id"></div>
+        <div class="col-md-8"><label class="form-label">Title</label><input class="form-control" data-field="title"></div>
+        <div class="col-md-4"><label class="form-label">As a</label><input class="form-control" data-field="as_a"></div>
+        <div class="col-md-4"><label class="form-label">I want</label><input class="form-control" data-field="i_want"></div>
+        <div class="col-md-4"><label class="form-label">So that</label><input class="form-control" data-field="so_that"></div>
+        <div class="col-md-6"><label class="form-label">Estimate</label><input class="form-control" data-field="estimate"></div>
+        <div class="col-md-6"><label class="form-label">Priority</label><input class="form-control" data-field="priority"></div>
+      </div>
+      <div class="mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="form-label mb-0">Acceptance Criteria</label>
+          <button class="btn btn-outline-primary btn-sm" type="button" data-add-subitem="acceptance_criteria">Add Criterion</button>
+        </div>
+        <div class="d-flex flex-column gap-2" data-subitems="acceptance_criteria"></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="deliverable-template">
+    <div class="array-item p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <strong>Deliverable</strong>
+        <button class="btn btn-outline-danger btn-sm" type="button" data-remove-item>Remove</button>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-3"><label class="form-label">ID</label><input class="form-control" data-field="id"></div>
+        <div class="col-md-9"><label class="form-label">Name</label><input class="form-control" data-field="name"></div>
+        <div class="col-md-6"><label class="form-label">Description</label><textarea class="form-control" rows="2" data-field="description"></textarea></div>
+        <div class="col-md-6"><label class="form-label">Access Details</label><textarea class="form-control" rows="2" data-field="access_details"></textarea></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="milestone-template">
+    <div class="array-item p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <strong>Milestone</strong>
+        <button class="btn btn-outline-danger btn-sm" type="button" data-remove-item>Remove</button>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Name</label><input class="form-control" data-field="name"></div>
+        <div class="col-md-6"><label class="form-label">Due Date</label><input class="form-control" data-field="due_date"></div>
+      </div>
+      <div class="mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="form-label mb-0">Deliverables</label>
+          <button class="btn btn-outline-primary btn-sm" type="button" data-add-subitem="deliverables">Add Deliverable Line</button>
+        </div>
+        <div class="d-flex flex-column gap-2" data-subitems="deliverables"></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="risk-template">
+    <div class="array-item p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <strong>Row</strong>
+        <button class="btn btn-outline-danger btn-sm" type="button" data-remove-item>Remove</button>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-3"><label class="form-label">ID</label><input class="form-control" data-field="id"></div>
+        <div class="col-md-4"><label class="form-label">Summary</label><textarea class="form-control" rows="2" data-field="summary"></textarea></div>
+        <div class="col-md-5"><label class="form-label">Mitigation</label><textarea class="form-control" rows="2" data-field="mitigation"></textarea></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="subitem-template">
+    <div class="input-group">
+      <input class="form-control" data-subitem-input>
+      <button class="btn btn-outline-danger" type="button" data-remove-subitem>Remove</button>
+    </div>
+  </template>
+
+  <script>
+    const arrayConfigs = {
+      "team-members": { template: "team-member-template" },
+      "kanban-columns": { template: "key-description-template" },
+      "kanban-principles": { template: "key-description-template" },
+      "user-stories": { template: "story-template" },
+      "deliverables": { template: "deliverable-template" },
+      "milestones": { template: "milestone-template" },
+      "assumptions": { template: "risk-template" },
+      "risks": { template: "risk-template" }
+    };
+
+    const defaults = {
+      teamMembers: [
+        { role: "Project Manager", name: "Jordan Reeves", email: "jordan.reeves@abccorp.example", phone: "+1-312-555-0142" },
+        { role: "Senior Developer", name: "Priya Shah", email: "priya.shah@abccorp.example", phone: "+1-312-555-0168" }
+      ],
+      kanbanColumns: [
+        { key: "Backlog", description: "All approved work items waiting to be prioritized for delivery." },
+        { key: "Ready", description: "Work that is refined, sized, and ready for the team to pull." }
+      ],
+      kanbanPrinciples: [
+        { key: "Visualize workflow", description: "Make the current state of work visible so blockers and handoffs are easy to spot." },
+        { key: "Limit work in progress (WIP)", description: "Reduce multitasking so the team can finish work faster and with better focus." }
+      ],
+      userStories: [
+        {
+          id: "US-001",
+          title: "User Authentication",
+          as_a: "registered user",
+          i_want: "to log in to the application",
+          so_that: "I can access my personal dashboard",
+          estimate: "8",
+          priority: "High",
+          acceptance_criteria: [
+            "User can enter username and password",
+            "System validates credentials"
+          ]
+        }
+      ],
+      deliverables: [
+        {
+          id: "D-01",
+          name: "Functional web application",
+          description: "The deployed task management product with authentication, task workflows, and reporting enabled.",
+          access_details: "Users will access the application through the production URL using their assigned credentials."
+        }
+      ],
+      milestones: [
+        {
+          name: "Sprint 1 Completion",
+          due_date: "2026-04-15",
+          deliverables: ["User authentication implemented", "Basic task creation functionality"]
+        }
+      ],
+      assumptions: [
+        {
+          id: "A-01",
+          summary: "Team members have the required skills and tool access.",
+          mitigation: "Confirm staffing and environment readiness before kickoff."
+        }
+      ],
+      risks: [
+        {
+          id: "R-01",
+          summary: "Review work in progress regularly to surface blockers early.",
+          mitigation: "Inspect the board frequently and escalate blocked items early."
+        }
+      ]
+    };
+
+    function createItem(templateId, values = {}) {
+      const node = document.getElementById(templateId).content.firstElementChild.cloneNode(true);
+      node.querySelectorAll("[data-field]").forEach((field) => {
+        field.value = values[field.dataset.field] ?? "";
+      });
+
+      node.querySelectorAll("[data-add-subitem]").forEach((button) => {
+        button.addEventListener("click", () => {
+          addSubitem(button.closest(".array-item").querySelector(`[data-subitems="${button.dataset.addSubitem}"]`));
+        });
+      });
+
+      node.querySelectorAll("[data-remove-item]").forEach((button) => {
+        button.addEventListener("click", () => button.closest(".array-item").remove());
+      });
+
+      if (values.acceptance_criteria) {
+        const container = node.querySelector('[data-subitems="acceptance_criteria"]');
+        values.acceptance_criteria.forEach((value) => addSubitem(container, value));
+      }
+
+      if (values.deliverables) {
+        const container = node.querySelector('[data-subitems="deliverables"]');
+        values.deliverables.forEach((value) => addSubitem(container, value));
+      }
+
+      return node;
+    }
+
+    function addSubitem(container, value = "") {
+      const row = document.getElementById("subitem-template").content.firstElementChild.cloneNode(true);
+      row.querySelector("[data-subitem-input]").value = value;
+      row.querySelector("[data-remove-subitem]").addEventListener("click", () => row.remove());
+      container.appendChild(row);
+    }
+
+    function addArrayItem(containerId, values = {}) {
+      const config = arrayConfigs[containerId];
+      document.getElementById(containerId).appendChild(createItem(config.template, values));
+    }
+
+    function yamlScalar(value) {
+      const stringValue = String(value ?? "");
+      return JSON.stringify(stringValue);
+    }
+
+    function yamlLine(level, text) {
+      return `${"  ".repeat(level)}${text}`;
+    }
+
+    function getFieldValue(name) {
+      return document.querySelector(`[name="${name}"]`)?.value.trim() ?? "";
+    }
+
+    function getArrayItems(containerId) {
+      return [...document.getElementById(containerId).children];
+    }
+
+    function objectFromItem(item) {
+      const result = {};
+      item.querySelectorAll("[data-field]").forEach((field) => {
+        result[field.dataset.field] = field.value.trim();
+      });
+      item.querySelectorAll("[data-subitems]").forEach((container) => {
+        result[container.dataset.subitems] = [...container.querySelectorAll("[data-subitem-input]")]
+          .map((input) => input.value.trim())
+          .filter(Boolean);
+      });
+      return result;
+    }
+
+    function renderKeyValueArray(key, items, fields) {
+      const lines = [yamlLine(0, `${key}:`)];
+      items.forEach((item) => {
+        fields.forEach((field, index) => {
+          const prefix = index === 0 ? "- " : "  ";
+          lines.push(yamlLine(1, `${prefix}${field}: ${yamlScalar(item[field])}`));
+        });
+      });
+      return lines;
+    }
+
+    function generateYaml() {
+      const teamMembers = getArrayItems("team-members").map(objectFromItem);
+      const kanbanColumns = getArrayItems("kanban-columns").map(objectFromItem);
+      const kanbanPrinciples = getArrayItems("kanban-principles").map(objectFromItem);
+      const userStories = getArrayItems("user-stories").map(objectFromItem);
+      const deliverables = getArrayItems("deliverables").map(objectFromItem);
+      const milestones = getArrayItems("milestones").map(objectFromItem);
+      const assumptions = getArrayItems("assumptions").map(objectFromItem);
+      const risks = getArrayItems("risks").map(objectFromItem);
+
+      const lines = [];
+
+      lines.push("project:");
+      lines.push(yamlLine(1, `name: ${yamlScalar(getFieldValue("project.name"))}`));
+      lines.push(yamlLine(1, `client: ${yamlScalar(getFieldValue("project.client"))}`));
+      lines.push(yamlLine(1, `start_date: ${yamlScalar(getFieldValue("project.start_date"))}`));
+      lines.push(yamlLine(1, `end_date: ${yamlScalar(getFieldValue("project.end_date"))}`));
+      lines.push(yamlLine(1, `description: ${yamlScalar(getFieldValue("project.description"))}`));
+      lines.push("");
+
+      lines.push("team:");
+      lines.push(yamlLine(1, `size: ${getFieldValue("team.size") || "0"}`));
+      lines.push(yamlLine(1, "members:"));
+      teamMembers.forEach((member) => {
+        lines.push(yamlLine(2, `- role: ${yamlScalar(member.role)}`));
+        lines.push(yamlLine(3, `name: ${yamlScalar(member.name)}`));
+        lines.push(yamlLine(3, `email: ${yamlScalar(member.email)}`));
+        lines.push(yamlLine(3, `phone: ${yamlScalar(member.phone)}`));
+      });
+      lines.push("");
+
+      lines.push("kanban:");
+      lines.push(yamlLine(1, `description: ${yamlScalar(getFieldValue("kanban.description"))}`));
+      lines.push(yamlLine(1, "columns:"));
+      kanbanColumns.forEach((row) => {
+        lines.push(yamlLine(2, `- key: ${yamlScalar(row.key)}`));
+        lines.push(yamlLine(3, `description: ${yamlScalar(row.description)}`));
+      });
+      lines.push(yamlLine(1, "principles:"));
+      kanbanPrinciples.forEach((row) => {
+        lines.push(yamlLine(2, `- key: ${yamlScalar(row.key)}`));
+        lines.push(yamlLine(3, `description: ${yamlScalar(row.description)}`));
+      });
+      lines.push("");
+
+      lines.push("user_stories:");
+      userStories.forEach((story) => {
+        lines.push(yamlLine(1, `- id: ${yamlScalar(story.id)}`));
+        lines.push(yamlLine(2, `title: ${yamlScalar(story.title)}`));
+        lines.push(yamlLine(2, `as_a: ${yamlScalar(story.as_a)}`));
+        lines.push(yamlLine(2, `i_want: ${yamlScalar(story.i_want)}`));
+        lines.push(yamlLine(2, `so_that: ${yamlScalar(story.so_that)}`));
+        lines.push(yamlLine(2, "acceptance_criteria:"));
+        (story.acceptance_criteria || []).forEach((criterion) => {
+          lines.push(yamlLine(3, `- ${yamlScalar(criterion)}`));
+        });
+        lines.push(yamlLine(2, `estimate: ${story.estimate || "0"}`));
+        lines.push(yamlLine(2, `priority: ${yamlScalar(story.priority)}`));
+      });
+      lines.push("");
+
+      lines.push("deliverables:");
+      deliverables.forEach((item) => {
+        lines.push(yamlLine(1, `- id: ${yamlScalar(item.id)}`));
+        lines.push(yamlLine(2, `name: ${yamlScalar(item.name)}`));
+        lines.push(yamlLine(2, `description: ${yamlScalar(item.description)}`));
+        lines.push(yamlLine(2, `access_details: ${yamlScalar(item.access_details)}`));
+      });
+      lines.push("");
+
+      lines.push("milestones:");
+      milestones.forEach((item) => {
+        lines.push(yamlLine(1, `- name: ${yamlScalar(item.name)}`));
+        lines.push(yamlLine(2, `due_date: ${yamlScalar(item.due_date)}`));
+        lines.push(yamlLine(2, "deliverables:"));
+        (item.deliverables || []).forEach((deliverable) => {
+          lines.push(yamlLine(3, `- ${yamlScalar(deliverable)}`));
+        });
+      });
+      lines.push("");
+
+      lines.push("pricing:");
+      lines.push(yamlLine(1, `hourly_rate: ${getFieldValue("pricing.hourly_rate") || "0"}`));
+      lines.push(yamlLine(1, `overhead: ${getFieldValue("pricing.overhead") || "0"}`));
+      lines.push(yamlLine(1, `profit_margin: ${getFieldValue("pricing.profit_margin") || "0"}`));
+      lines.push("");
+
+      if (assumptions.length) {
+        lines.push(...renderKeyValueArray("assumptions_and_constraints", assumptions, ["id", "summary", "mitigation"]));
+        lines.push("");
+      }
+
+      if (risks.length) {
+        lines.push(...renderKeyValueArray("risk_management", risks, ["id", "summary", "mitigation"]));
+      }
+
+      document.getElementById("yaml-preview").value = lines.join("\n");
+    }
+
+    function downloadYaml() {
+      generateYaml();
+      const blob = new Blob([document.getElementById("yaml-preview").value], { type: "text/yaml;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = buildFileName();
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function buildFileName() {
+      const projectName = getFieldValue("project.name") || "new-sow";
+      const slug = projectName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      return `${slug || "new-sow"}.yaml`;
+    }
+
+    async function saveYamlToFolder() {
+      generateYaml();
+
+      if (!window.showDirectoryPicker) {
+        alert("Direct folder saving is only supported in Chromium-based browsers. Use Download instead.");
+        return;
+      }
+
+      try {
+        const directoryHandle = await window.showDirectoryPicker();
+        const fileHandle = await directoryHandle.getFileHandle(buildFileName(), { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(document.getElementById("yaml-preview").value);
+        await writable.close();
+        alert(`Saved ${buildFileName()} to the selected folder.`);
+      } catch (error) {
+        if (error && error.name !== "AbortError") {
+          alert(`Could not save file: ${error.message}`);
+        }
+      }
+    }
+
+    document.querySelectorAll("[data-add-array-item]").forEach((button) => {
+      button.addEventListener("click", () => addArrayItem(button.dataset.addArrayItem));
+    });
+
+    document.getElementById("generate-yaml").addEventListener("click", generateYaml);
+    document.getElementById("save-yaml").addEventListener("click", saveYamlToFolder);
+    document.getElementById("download-yaml").addEventListener("click", downloadYaml);
+
+    defaults.teamMembers.forEach((item) => addArrayItem("team-members", item));
+    defaults.kanbanColumns.forEach((item) => addArrayItem("kanban-columns", item));
+    defaults.kanbanPrinciples.forEach((item) => addArrayItem("kanban-principles", item));
+    defaults.userStories.forEach((item) => addArrayItem("user-stories", item));
+    defaults.deliverables.forEach((item) => addArrayItem("deliverables", item));
+    defaults.milestones.forEach((item) => addArrayItem("milestones", item));
+    defaults.assumptions.forEach((item) => addArrayItem("assumptions", item));
+    defaults.risks.forEach((item) => addArrayItem("risks", item));
+    generateYaml();
+  </script>
+</body>
+</html>

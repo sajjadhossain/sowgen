@@ -139,12 +139,21 @@ After the run finishes, you can download the generated artifacts with:
 gh run download --name demo-documents
 ```
 
+9. Create a new YAML file with the Bootstrap form:
+
+Open [new-sow.html](/Users/sajjadhossain/Documents/GitHub/sow-generator/new-sow.html) in a browser and fill out the form to generate YAML from the project sections.
+
+- The form supports adding and removing rows for repeatable sections like team members, Kanban rows, user stories, deliverables, milestones, assumptions, and risks.
+- `Save to YAML Folder` will prompt you to select `demos/yaml` and then save the generated YAML there.
+- If your browser does not support direct folder saving, use `Download` and move the file into `demos/yaml`.
+
 ## Project Structure
 
 - `src/sow_generator/markdown.py`: Core Markdown SOW generation logic
 - `src/sow_generator/pdf.py`: Markdown-to-PDF rendering logic
 - `src/sow_generator/demo.py`: Demo build orchestration for `demos/`
 - `src/sow_generator/cli/`: CLI entrypoints for generating SOWs, PDFs, and demo outputs
+- `new-sow.html`: Bootstrap form for creating YAML SOW files visually
 - `.github/workflows/build-demo-documents.yml`: GitHub Actions workflow for `gh workflow run`
 - `demos/yaml/sample.yaml`: Example YAML configuration
 - `requirements.txt`: Python dependencies
