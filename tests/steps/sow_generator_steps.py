@@ -4,6 +4,7 @@ import sys
 import tempfile
 
 from behave import given, then, when
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -26,6 +27,18 @@ def step_invalid_configuration(context):
     context.config_path = temp_dir / "invalid.yaml"
     context.config_path.write_text("project:\n  name: Missing Required Sections\n", encoding="utf-8")
     context.output_path = temp_dir / "invalid.md"
+
+
+@given("a configuration file without optional assumptions and risk sections")
+def step_configuration_without_optional_sections(context):
+    temp_dir = Path(tempfile.mkdtemp(prefix="sow-generator-optional-"))
+    source_path = ROOT / "demos" / "yaml" / "sample.yaml"
+    yaml_data = yaml.safe_load(source_path.read_text(encoding="utf-8"))
+    yaml_data.pop("assumptions_and_constraints", None)
+    yaml_data.pop("risk_management", None)
+    context.config_path = temp_dir / "optional.yaml"
+    context.output_path = temp_dir / "optional.md"
+    context.config_path.write_text(yaml.safe_dump(yaml_data, sort_keys=False), encoding="utf-8")
 
 
 @given("a markdown file for PDF conversion")
@@ -58,7 +71,7 @@ def step_demo_directories_with_sample_yaml(context):
 
     source_files = [
         ROOT / "demos" / "yaml" / "sample.yaml",
-        ROOT / "demos" / "yaml" / "ifti-test.yaml",
+        ROOT / "demos" / "yaml" / "airtable-player-static.yaml",
     ]
     context.demo_expected_markdown_paths = []
     context.demo_expected_pdf_paths = []
@@ -157,6 +170,12 @@ def step_output_contains_gherkin(context):
 @then("the output file contains the total estimated cost")
 def step_output_contains_total_cost(context):
     assert "| Total Estimated Cost | $23,400.00 |" in context.output_text
+
+
+@then("the output file omits the assumptions and risk sections")
+def step_output_omits_optional_sections(context):
+    assert "## Assumptions and Constraints" not in context.output_text
+    assert "## Risk Management" not in context.output_text
 
 
 @then("the command fails")

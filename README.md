@@ -163,10 +163,13 @@ The generator expects these top-level YAML sections:
 - `deliverables`
 - `milestones`
 - `pricing`
+
+Optional sections:
+
 - `assumptions_and_constraints`
 - `risk_management`
 
-The script no longer fills in document copy from Python defaults. If a required content block is missing, generation fails with a configuration error.
+The script no longer fills in document copy from Python defaults. If a required content block is missing, generation fails with a configuration error. The optional sections above are only rendered when they are present in the YAML.
 
 ## Testing
 

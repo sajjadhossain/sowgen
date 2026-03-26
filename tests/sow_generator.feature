@@ -29,6 +29,12 @@ Feature: Generate a scope of work document
     Then the PDF command fails
     And the PDF error mentions the missing input file
 
+  Scenario: Generate a SOW without optional assumptions and risk sections
+    Given a configuration file without optional assumptions and risk sections
+    When I generate the scope of work
+    Then the command succeeds
+    And the output file omits the assumptions and risk sections
+
   Scenario: Generate all demo markdown and PDF files from the demos folder structure
     Given demo directories with multiple YAML files and stale outputs
     When I generate the demo documents with clean mode

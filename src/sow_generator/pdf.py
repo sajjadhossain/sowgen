@@ -326,6 +326,11 @@ def section_indent_for_level(level: int) -> int:
     return SECTION_INDENTS.get(level, 0)
 
 
+def is_user_story_line(text: str) -> bool:
+    lowered = text.strip().lower()
+    return lowered.startswith("as a ") or lowered.startswith("i want ") or lowered.startswith("so that ")
+
+
 def build_markdown_flowables(markdown_text: str) -> list[object]:
     lines = markdown_text.splitlines()
     styles = build_styles()
@@ -403,16 +408,21 @@ def build_markdown_flowables(markdown_text: str) -> list[object]:
 
         if stripped.startswith(("- ", "* ")):
             bullet_lines, index = collect_bullets(lines, index)
-            bullet_items = [ListItem(build_body_paragraph(item, styles["body"])) for item in bullet_lines]
-            flowables.append(
-                ListFlowable(
-                    bullet_items,
-                    bulletType="bullet",
-                    leftIndent=18 + section_indent_for_level(current_section_level),
-                    bulletFontName="Helvetica",
-                    bulletFontSize=10,
+            list_indent = 18 + section_indent_for_level(current_section_level)
+            if all(is_user_story_line(item) for item in bullet_lines):
+                for item in bullet_lines:
+                    flowables.append(build_body_paragraph(item, styles["body"], list_indent))
+            else:
+                bullet_items = [ListItem(build_body_paragraph(item, styles["body"])) for item in bullet_lines]
+                flowables.append(
+                    ListFlowable(
+                        bullet_items,
+                        bulletType="bullet",
+                        leftIndent=list_indent,
+                        bulletFontName="Helvetica",
+                        bulletFontSize=10,
+                    )
                 )
-            )
             flowables.append(Spacer(1, 0.08 * inch))
             continue
 

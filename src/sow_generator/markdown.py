@@ -18,8 +18,6 @@ REQUIRED_TOP_LEVEL_KEYS = {
     "deliverables",
     "milestones",
     "pricing",
-    "assumptions_and_constraints",
-    "risk_management",
 }
 
 
@@ -44,8 +42,8 @@ def validate_data(data: dict[str, Any]) -> None:
     team = data["team"]
     kanban = data["kanban"]
     pricing = data["pricing"]
-    assumptions = data["assumptions_and_constraints"]
-    risks = data["risk_management"]
+    assumptions = data.get("assumptions_and_constraints", [])
+    risks = data.get("risk_management", [])
 
     required_project_keys = ["name", "client", "start_date", "end_date", "description"]
     required_pricing_keys = ["hourly_rate", "overhead", "profit_margin"]
@@ -76,11 +74,11 @@ def validate_data(data: dict[str, Any]) -> None:
     if not isinstance(kanban["principles"], list) or not kanban["principles"]:
         raise ValueError("`kanban.principles` must contain at least one item.")
 
-    if not isinstance(assumptions, list) or not assumptions:
-        raise ValueError("`assumptions_and_constraints` must contain at least one item.")
+    if assumptions is not None and not isinstance(assumptions, list):
+        raise ValueError("`assumptions_and_constraints` must be a list when provided.")
 
-    if not isinstance(risks, list) or not risks:
-        raise ValueError("`risk_management` must contain at least one item.")
+    if risks is not None and not isinstance(risks, list):
+        raise ValueError("`risk_management` must be a list when provided.")
 
     for index, story in enumerate(data["user_stories"], start=1):
         _require_keys(
@@ -195,7 +193,11 @@ def normalize_deliverables(deliverables: list[dict[str, Any]]) -> list[dict[str,
     return normalized
 
 
-def build_toc(story_config: list[dict[str, Any]]) -> list[str]:
+def build_toc(
+    story_config: list[dict[str, Any]],
+    include_assumptions: bool = True,
+    include_risks: bool = True,
+) -> list[str]:
     toc_lines = [
         "## Table of Contents",
         "",
@@ -219,11 +221,13 @@ def build_toc(story_config: list[dict[str, Any]]) -> list[str]:
             "  - [Delivery Estimate Summary](#delivery-estimate-summary)",
             "- [Milestones](#milestones)",
             "- [Pricing Estimate](#pricing-estimate)",
-            "- [Assumptions and Constraints](#assumptions-and-constraints)",
-            "- [Risk Management](#risk-management)",
-            "",
         ]
     )
+    if include_assumptions:
+        toc_lines.append("- [Assumptions and Constraints](#assumptions-and-constraints)")
+    if include_risks:
+        toc_lines.append("- [Risk Management](#risk-management)")
+    toc_lines.append("")
     return toc_lines
 
 
@@ -238,8 +242,8 @@ def generate_sow(data: dict[str, Any]) -> str:
     deliverables = normalize_deliverables(data["deliverables"])
     milestones = data["milestones"]
     pricing = data["pricing"]
-    assumptions = data["assumptions_and_constraints"]
-    risks = data["risk_management"]
+    assumptions = data.get("assumptions_and_constraints", [])
+    risks = data.get("risk_management", [])
 
     total_estimate = sum(story["epic"]["estimate"] for story in story_config)
     total_hours = total_estimate * 8
@@ -252,7 +256,7 @@ def generate_sow(data: dict[str, Any]) -> str:
         f"# Scope of Work: {project['name']}",
         "",
     ]
-    lines.extend(build_toc(story_config))
+    lines.extend(build_toc(story_config, include_assumptions=bool(assumptions), include_risks=bool(risks)))
     lines.extend(
         build_table(
             ["Key", "Description"],
@@ -396,20 +400,22 @@ def generate_sow(data: dict[str, Any]) -> str:
             ],
         )
     )
-    lines.extend(["", "## Assumptions and Constraints", ""])
-    lines.extend(
-        build_table(
-            ["ID", "Summary", "Mitigation"],
-            [[str(item["id"]), str(item["summary"]), str(item["mitigation"])] for item in assumptions],
+    if assumptions:
+        lines.extend(["", "## Assumptions and Constraints", ""])
+        lines.extend(
+            build_table(
+                ["ID", "Summary", "Mitigation"],
+                [[str(item["id"]), str(item["summary"]), str(item["mitigation"])] for item in assumptions],
+            )
         )
-    )
-    lines.extend(["", "## Risk Management", ""])
-    lines.extend(
-        build_table(
-            ["ID", "Summary", "Mitigation"],
-            [[str(item["id"]), str(item["summary"]), str(item["mitigation"])] for item in risks],
+    if risks:
+        lines.extend(["", "## Risk Management", ""])
+        lines.extend(
+            build_table(
+                ["ID", "Summary", "Mitigation"],
+                [[str(item["id"]), str(item["summary"]), str(item["mitigation"])] for item in risks],
+            )
         )
-    )
     lines.extend([""])
 
     return "\n".join(lines)
