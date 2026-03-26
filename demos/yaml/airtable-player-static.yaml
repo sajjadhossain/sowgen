@@ -1,0 +1,233 @@
+project:
+  name: "Hugging Trees Airtable Player Modernization"
+  client: "Hugging Trees"
+  start_date: "2026-04-01"
+  end_date: "2026-07-31"
+  description: "Rebuild and fine-tune the existing Airtable-driven static media experience as a React application with a custom Airtable wrapper, configurable UI behavior, cross-platform developer workflows, automated tests, and maintainable contributor documentation."
+
+team:
+  size: 4
+  members:
+    - role: "Project Manager"
+      name: "Jordan Reeves"
+      email: "jordan.reeves@abccorp.example"
+      phone: "+1-312-555-0142"
+    - role: "Senior Developer"
+      name: "Priya Shah"
+      email: "priya.shah@abccorp.example"
+      phone: "+1-312-555-0168"
+    - role: "UI/UX Designer"
+      name: "Avery Collins"
+      email: "avery.collins@abccorp.example"
+      phone: "+1-312-555-0185"
+    - role: "QA Engineer"
+      name: "Marcus Bennett"
+      email: "marcus.bennett@abccorp.example"
+      phone: "+1-312-555-0131"
+
+kanban:
+  description: "This engagement will follow a technical Kanban workflow so the team can modernize the application iteratively while keeping Airtable integration, UI, and deployment work visible."
+  columns:
+    - key: "Backlog"
+      description: "Approved modernization work waiting for prioritization, refinement, or sequencing."
+    - key: "Ready"
+      description: "Tasks that have enough detail, acceptance criteria, and dependencies cleared for implementation."
+    - key: "In Progress"
+      description: "Active engineering, design, integration, or QA work underway for the React rebuild."
+    - key: "Review"
+      description: "Completed work awaiting peer review, stakeholder validation, or functional QA signoff."
+    - key: "Done"
+      description: "Accepted work that is validated, documented, and ready for release or handoff."
+  principles:
+    - key: "Visualize workflow"
+      description: "Track frontend, Airtable integration, documentation, and QA work in one shared delivery view."
+    - key: "Limit work in progress (WIP)"
+      description: "Reduce parallel changes so the team can stabilize the React rewrite and wrapper layer effectively."
+    - key: "Manage flow and reduce handoff delays"
+      description: "Monitor bottlenecks between implementation, review, QA, and content validation."
+    - key: "Make process policies explicit"
+      description: "Define code review, testing, and Airtable schema change expectations before work starts."
+    - key: "Use feedback loops to refine delivery"
+      description: "Review working increments with the client regularly and adjust scope priorities as the app evolves."
+    - key: "Improve collaboratively and continuously"
+      description: "Use short retrospectives and release feedback to improve delivery quality over the engagement."
+
+user_stories:
+  - id: "US-001"
+    title: "Custom Airtable Wrapper"
+    as_a: "developer"
+    i_want: "to create a custom Airtable wrapper"
+    so_that: "I can CRUD the database from a custom application"
+    acceptance_criteria:
+      - "The wrapper supports authenticated create, read, update, and delete operations for the target Airtable base."
+      - "The wrapper centralizes Airtable schema mappings and request handling for reuse across the app."
+      - "Errors, rate limits, and invalid payloads are surfaced with actionable logs and user-safe responses."
+      - "The wrapper can be consumed by the React application without exposing secrets in the client."
+    estimate: 13
+    priority: "High"
+
+  - id: "US-002"
+    title: "Developer Installation and Contribution Guide"
+    as_a: "developer"
+    i_want: "installation, contribution, and documentation guidelines for the application"
+    so_that: "I can help new contributors set up, understand, and extend the project efficiently"
+    acceptance_criteria:
+      - "The repository includes installation steps for local development and production-oriented builds."
+      - "Contribution guidance defines branching, code standards, review expectations, and release workflow."
+      - "Architecture and Airtable integration documentation explain how the app is organized and configured."
+      - "Documentation is versioned with the codebase and updated as part of feature delivery."
+    estimate: 5
+    priority: "Medium"
+
+  - id: "US-003"
+    title: "Automated Test Coverage"
+    as_a: "developer"
+    i_want: "tests for the application"
+    so_that: "I can validate changes reliably as the app is rebuilt and fine-tuned"
+    acceptance_criteria:
+      - "The project includes unit and integration test coverage for the Airtable wrapper and core UI behavior."
+      - "Tests run in a repeatable local and CI-friendly command."
+      - "Critical user flows are covered for data loading, error handling, and key UI interactions."
+      - "Test documentation explains how to run, extend, and troubleshoot the test suite."
+    estimate: 8
+    priority: "High"
+
+  - id: "US-004"
+    title: "Cross-Platform Developer Workflow"
+    as_a: "developer"
+    i_want: "the application to be platform agnostic with installation steps and scripts"
+    so_that: "I can support contributors on Windows, macOS, and Linux consistently"
+    acceptance_criteria:
+      - "Setup instructions cover Windows, macOS, and Linux prerequisites and environment configuration."
+      - "Development scripts work across supported platforms or include documented platform-specific equivalents."
+      - "Build and test commands are standardized for contributors and CI environments."
+      - "Platform-specific issues are documented with mitigation steps or automation where practical."
+    estimate: 5
+    priority: "Medium"
+
+  - id: "US-005"
+    title: "React Application Foundation"
+    as_a: "product owner"
+    i_want: "the application in React"
+    so_that: "I can maintain and evolve a component-driven UI more easily"
+    acceptance_criteria:
+      - "The current static application experience is rebuilt as a React application."
+      - "Core screens and media flows are migrated into reusable React components."
+      - "State management and data loading patterns are documented for future contributors."
+      - "The React application integrates with the custom Airtable wrapper for data-driven functionality."
+    estimate: 13
+    priority: "High"
+
+  - id: "US-006"
+    title: "Storybook and Jest Integration"
+    as_a: "developer"
+    i_want: "Storybook and Jest in the React app"
+    so_that: "I can develop, preview, and test components in isolation"
+    acceptance_criteria:
+      - "Storybook is configured for reusable React components with representative states."
+      - "Jest is configured for component and logic tests with clear setup instructions."
+      - "Key UI components have baseline stories and tests."
+      - "The developer workflow includes commands for running Storybook and Jest locally."
+    estimate: 8
+    priority: "Medium"
+
+  - id: "US-007"
+    title: "Airtable-Driven React Configuration"
+    as_a: "content administrator"
+    i_want: "the React app to be configurable by Airtable"
+    so_that: "I can adjust supported content and interface behavior without code changes"
+    acceptance_criteria:
+      - "Airtable can control defined configuration fields used by the React application."
+      - "The app validates and safely handles missing or malformed Airtable configuration values."
+      - "Configuration changes can update UI content, media references, or display behavior as designed."
+      - "Documentation identifies which configuration fields are editable in Airtable and how they affect the app."
+    estimate: 8
+    priority: "High"
+
+deliverables:
+  - id: "D-01"
+    name: "Custom Airtable wrapper library"
+    description: "A reusable application layer for secure Airtable CRUD operations, schema mapping, and error handling."
+    access_details: "Developers will access the wrapper through the project repository and the documented integration entry points."
+  - id: "D-02"
+    name: "React application rebuild"
+    description: "A React-based version of the Airtable player experience replacing the current static implementation."
+    access_details: "Stakeholders will access the rebuilt application through the deployed environment and local developers through the documented run scripts."
+  - id: "D-03"
+    name: "Storybook and Jest setup"
+    description: "Component preview and automated test tooling configured for the React application."
+    access_details: "The team will access Storybook locally or in a hosted preview and run Jest from the project scripts."
+  - id: "D-04"
+    name: "Cross-platform setup and contributor documentation"
+    description: "Installation, contribution, architecture, and workflow guidance for Windows, macOS, and Linux contributors."
+    access_details: "Contributors will access this documentation in the repository README and supporting docs."
+  - id: "D-05"
+    name: "Airtable configuration model"
+    description: "Documented Airtable-driven settings that control supported areas of application behavior and content."
+    access_details: "Content administrators will manage configuration in Airtable and reference the project documentation for supported fields."
+  - id: "D-06"
+    name: "Deployment and QA handoff package"
+    description: "Release scripts, validation steps, and handoff guidance for maintaining the application after delivery."
+    access_details: "The client and support team will access the handoff package through the shared repository and delivery workspace."
+
+milestones:
+  - name: "Discovery and Architecture Baseline"
+    due_date: "2026-04-15"
+    deliverables:
+      - "Current app review and modernization plan"
+      - "Airtable wrapper design"
+      - "React architecture and delivery backlog"
+
+  - name: "Core React and Airtable Integration"
+    due_date: "2026-05-15"
+    deliverables:
+      - "Working React application foundation"
+      - "Initial Airtable wrapper implementation"
+      - "Configurable data loading flow"
+
+  - name: "Quality, Documentation, and Platform Support"
+    due_date: "2026-06-15"
+    deliverables:
+      - "Storybook and Jest setup"
+      - "Cross-platform install and contribution documentation"
+      - "Expanded automated test coverage"
+
+  - name: "Final Delivery"
+    due_date: "2026-07-31"
+    deliverables:
+      - "Production-ready React application"
+      - "Airtable-driven configuration support"
+      - "Deployment and QA handoff package"
+
+pricing:
+  hourly_rate: 95.00
+  overhead: 0.25
+  profit_margin: 0.20
+
+assumptions_and_constraints:
+  - id: "A-01"
+    summary: "The existing static app and Airtable base can be reviewed to confirm data structure and current workflow expectations."
+    mitigation: "Schedule discovery early and capture schema, dependency, and hosting decisions before implementation begins."
+  - id: "A-02"
+    summary: "Airtable API access, credentials, and target environments will be available to the delivery team when needed."
+    mitigation: "Track access dependencies as kickoff actions and escalate blocked credentials immediately."
+  - id: "A-03"
+    summary: "The client will identify which UI and behavior settings should be Airtable-configurable in the first release."
+    mitigation: "Define a supported configuration scope during backlog refinement and defer nonessential variability to later phases."
+  - id: "A-04"
+    summary: "React, Storybook, and Jest are acceptable technology choices for the modernization effort."
+    mitigation: "Confirm the toolchain during project kickoff and document any required substitutions before implementation starts."
+
+risk_management:
+  - id: "R-01"
+    summary: "Legacy static behaviors may not map cleanly to the React component model without discovery and refactoring."
+    mitigation: "Prototype the most complex media and Airtable flows early to reduce architectural uncertainty."
+  - id: "R-02"
+    summary: "Airtable schema changes during implementation could affect wrapper and UI assumptions."
+    mitigation: "Centralize schema mapping in the wrapper and review base changes during each planning cycle."
+  - id: "R-03"
+    summary: "Cross-platform setup can introduce environment-specific issues that slow onboarding."
+    mitigation: "Validate scripts on each supported platform and document troubleshooting steps as part of delivery."
+  - id: "R-04"
+    summary: "Configuration-driven UI behavior can create unstable edge cases if unsupported Airtable values are introduced."
+    mitigation: "Define guardrails, validation, and fallback behavior for configurable fields before exposing them to content editors."
