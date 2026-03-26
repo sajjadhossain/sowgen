@@ -16,6 +16,16 @@ This repository contains a Python-based tool to generate a Scope of Work (SOW) d
 
 ## Installation
 
+### Windows
+
+Run the installation script:
+
+```bat
+install.bat
+```
+
+### Mac/Linux
+
 Run the installation script:
 
 ```bash
@@ -39,6 +49,14 @@ This will install the required Python dependencies.
    - risk management entries
 2. Run the generator:
 
+Windows:
+
+```bat
+py sow_generator.py <path_to_yaml>
+```
+
+Mac/Linux:
+
 ```bash
 python3 sow_generator.py <path_to_yaml>
 ```
@@ -46,17 +64,41 @@ python3 sow_generator.py <path_to_yaml>
 3. The `sow.md` file will be generated in the current directory.
 4. Optionally provide a custom output path:
 
+Windows:
+
+```bat
+py sow_generator.py <path_to_yaml> --output custom-sow.md
+```
+
+Mac/Linux:
+
 ```bash
 python3 sow_generator.py <path_to_yaml> --output custom-sow.md
 ```
 
 5. Convert a Markdown file to PDF:
 
+Windows:
+
+```bat
+py markdown_to_pdf.py <path_to_markdown>
+```
+
+Mac/Linux:
+
 ```bash
 python3 markdown_to_pdf.py <path_to_markdown>
 ```
 
 6. Optionally provide a custom PDF output path:
+
+Windows:
+
+```bat
+py markdown_to_pdf.py <path_to_markdown> --output custom-sow.pdf
+```
+
+Mac/Linux:
 
 ```bash
 python3 markdown_to_pdf.py <path_to_markdown> --output custom-sow.pdf
