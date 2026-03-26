@@ -7,6 +7,7 @@ This repository contains a Python-based tool to generate a Scope of Work (SOW) d
 - Reads project details from a YAML file
 - Generates a comprehensive SOW in Markdown format
 - Generates a PDF from an existing Markdown document
+- Supports a one-command demo pipeline using `demos/yaml`, `demos/md`, and `demos/pdf`
 - Keeps document content in YAML and uses Python as a renderer
 - Adds a generated table of contents at the top of the SOW
 - Uses Gherkin syntax for user stories
@@ -36,7 +37,7 @@ This will install the required Python dependencies.
 
 ## Usage
 
-1. Create a YAML configuration file (see `sample.yaml` for an example).
+1. Create a YAML configuration file (see `demos/yaml/sample.yaml` for an example).
    The YAML now owns all document content that appears in the final SOW, including:
    - project metadata
    - team members
@@ -104,11 +105,31 @@ Mac/Linux:
 python3 markdown_to_pdf.py <path_to_markdown> --output custom-sow.pdf
 ```
 
+7. Build the demo files using the `demos` folder structure:
+
+Windows:
+
+```bat
+py generate_demo_documents.py
+```
+
+Mac/Linux:
+
+```bash
+python3 generate_demo_documents.py
+```
+
+This maps:
+
+- `demos/yaml/*.yaml` to `demos/md/*-sow.md`
+- `demos/md/*.md` to `demos/pdf/*.pdf`
+
 ## Project Structure
 
 - `sow_generator.py`: Main script to generate the SOW
-- `markdown_to_pdf.py`: Converts Markdown documents into PDFs
-- `sample.yaml`: Example YAML configuration
+- `markdown_to_pdf.py`: Converts Markdown documents into styled PDFs
+- `generate_demo_documents.py`: Builds demo Markdown and PDF files from the `demos/` folders
+- `demos/yaml/sample.yaml`: Example YAML configuration
 - `requirements.txt`: Python dependencies
 - `install.sh`: Installation script
 - `docs/`: Supplemental documentation and future GitHub Wiki content

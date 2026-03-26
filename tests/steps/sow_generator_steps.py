@@ -9,11 +9,12 @@ from behave import given, then, when
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "sow_generator.py"
 PDF_SCRIPT = ROOT / "markdown_to_pdf.py"
+DEMO_SCRIPT = ROOT / "generate_demo_documents.py"
 
 
 @given("the sample configuration file")
 def step_sample_configuration(context):
-    context.config_path = ROOT / "sample.yaml"
+    context.config_path = ROOT / "demos" / "yaml" / "sample.yaml"
     context.output_path = Path(tempfile.gettempdir()) / "sow-generator-sample.md"
     if context.output_path.exists():
         context.output_path.unlink()
@@ -45,6 +46,20 @@ def step_missing_markdown_file_for_pdf_conversion(context):
     context.pdf_output_path = temp_dir / "missing.pdf"
 
 
+@given("demo directories with a sample YAML file")
+def step_demo_directories_with_sample_yaml(context):
+    temp_dir = Path(tempfile.mkdtemp(prefix="sow-generator-demo-"))
+    context.demo_yaml_dir = temp_dir / "yaml"
+    context.demo_md_dir = temp_dir / "md"
+    context.demo_pdf_dir = temp_dir / "pdf"
+    context.demo_yaml_dir.mkdir(parents=True, exist_ok=True)
+    context.demo_yaml_path = context.demo_yaml_dir / "sample.yaml"
+    sample_source = ROOT / "demos" / "yaml" / "sample.yaml"
+    context.demo_yaml_path.write_text(sample_source.read_text(encoding="utf-8"), encoding="utf-8")
+    context.demo_md_path = context.demo_md_dir / "sample-sow.md"
+    context.demo_pdf_path = context.demo_pdf_dir / "sample-sow.pdf"
+
+
 @when("I generate the scope of work")
 def step_generate_scope_of_work(context):
     context.result = subprocess.run(
@@ -64,6 +79,25 @@ def step_generate_invalid_scope_of_work(context):
 def step_generate_pdf_document(context):
     context.result = subprocess.run(
         [sys.executable, str(PDF_SCRIPT), str(context.markdown_path), "--output", str(context.pdf_output_path)],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+
+
+@when("I generate the demo documents")
+def step_generate_demo_documents(context):
+    context.result = subprocess.run(
+        [
+            sys.executable,
+            str(DEMO_SCRIPT),
+            "--yaml-dir",
+            str(context.demo_yaml_dir),
+            "--md-dir",
+            str(context.demo_md_dir),
+            "--pdf-dir",
+            str(context.demo_pdf_dir),
+        ],
         capture_output=True,
         text=True,
         cwd=ROOT,
@@ -138,3 +172,21 @@ def step_pdf_command_fails(context):
 def step_pdf_error_mentions_missing_input_file(context):
     assert "Markdown file" in context.result.stderr
     assert "not found" in context.result.stderr
+
+
+@then("the demo document command succeeds")
+def step_demo_document_command_succeeds(context):
+    assert context.result.returncode == 0, context.result.stderr
+
+
+@then("the demo markdown file is created")
+def step_demo_markdown_file_is_created(context):
+    assert context.demo_md_path.exists(), "Expected the demo markdown file to be created."
+    markdown_text = context.demo_md_path.read_text(encoding="utf-8")
+    assert "# Scope of Work:" in markdown_text
+
+
+@then("the demo PDF file is created")
+def step_demo_pdf_file_is_created(context):
+    assert context.demo_pdf_path.exists(), "Expected the demo PDF file to be created."
+    assert context.demo_pdf_path.read_bytes()[:4] == b"%PDF"

@@ -3,24 +3,26 @@
 from __future__ import annotations
 
 import argparse
+import html
+import re
 import sys
 from pathlib import Path
+from typing import Iterable
 
+from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
-from reportlab.pdfbase.pdfmetrics import stringWidth
-from reportlab.pdfgen import canvas
-
-
-PAGE_SIZE = LETTER
-LEFT_MARGIN = 54
-RIGHT_MARGIN = 54
-TOP_MARGIN = 54
-BOTTOM_MARGIN = 54
-BODY_FONT = "Helvetica"
-BODY_FONT_SIZE = 11
-CODE_FONT = "Courier"
-CODE_FONT_SIZE = 9
-LINE_GAP = 4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import (
+    ListFlowable,
+    ListItem,
+    Paragraph,
+    Preformatted,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -36,106 +38,292 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def wrap_text(text: str, font_name: str, font_size: int, max_width: float) -> list[str]:
-    words = text.split()
-    if not words:
-        return [""]
-
-    lines: list[str] = []
-    current_line = words[0]
-
-    for word in words[1:]:
-        candidate = f"{current_line} {word}"
-        if stringWidth(candidate, font_name, font_size) <= max_width:
-            current_line = candidate
-        else:
-            lines.append(current_line)
-            current_line = word
-
-    lines.append(current_line)
-    return lines
+def convert_inline_markdown(text: str) -> str:
+    escaped = html.escape(text)
+    escaped = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", escaped)
+    escaped = re.sub(r"`(.+?)`", r"<font name='Courier'>\1</font>", escaped)
+    return escaped
 
 
-def iter_markdown_lines(markdown_text: str) -> list[tuple[str, str, int]]:
-    lines: list[tuple[str, str, int]] = []
-    in_code_block = False
+def is_table_line(line: str) -> bool:
+    stripped = line.strip()
+    return stripped.startswith("|") and stripped.endswith("|")
 
-    for raw_line in markdown_text.splitlines():
+
+def is_separator_row(line: str) -> bool:
+    cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+    return bool(cells) and all(cell and set(cell) <= {"-", ":"} for cell in cells)
+
+
+def parse_table(lines: list[str]) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for line in lines:
+        if is_separator_row(line):
+            continue
+        rows.append([cell.strip() for cell in line.strip().strip("|").split("|")])
+    return rows
+
+
+def collect_paragraph(lines: list[str], start_index: int) -> tuple[list[str], int]:
+    collected: list[str] = []
+    index = start_index
+
+    while index < len(lines):
+        line = lines[index]
+        stripped = line.strip()
+        if (
+            not stripped
+            or stripped.startswith("#")
+            or stripped.startswith("```")
+            or stripped.startswith(("- ", "* "))
+            or is_table_line(line)
+        ):
+            break
+        collected.append(stripped)
+        index += 1
+
+    return collected, index
+
+
+def collect_bullets(lines: list[str], start_index: int) -> tuple[list[str], int]:
+    collected: list[str] = []
+    index = start_index
+
+    while index < len(lines):
+        stripped = lines[index].strip()
+        if stripped.startswith(("- ", "* ")):
+            collected.append(stripped[2:].strip())
+            index += 1
+            continue
+        break
+
+    return collected, index
+
+
+def collect_table(lines: list[str], start_index: int) -> tuple[list[str], int]:
+    collected: list[str] = []
+    index = start_index
+
+    while index < len(lines) and is_table_line(lines[index]):
+        collected.append(lines[index])
+        index += 1
+
+    return collected, index
+
+
+def collect_code_block(lines: list[str], start_index: int) -> tuple[list[str], int]:
+    collected: list[str] = []
+    index = start_index + 1
+
+    while index < len(lines):
+        stripped = lines[index].strip()
+        if stripped.startswith("```"):
+            return collected, index + 1
+        collected.append(lines[index].rstrip())
+        index += 1
+
+    return collected, index
+
+
+def build_styles() -> dict[str, ParagraphStyle]:
+    stylesheet = getSampleStyleSheet()
+    return {
+        "title": ParagraphStyle(
+            "TitleCustom",
+            parent=stylesheet["Title"],
+            fontName="Helvetica-Bold",
+            fontSize=20,
+            leading=24,
+            spaceAfter=14,
+            textColor=colors.HexColor("#1f2937"),
+        ),
+        "h2": ParagraphStyle(
+            "Heading2Custom",
+            parent=stylesheet["Heading2"],
+            fontName="Helvetica-Bold",
+            fontSize=15,
+            leading=19,
+            spaceBefore=10,
+            spaceAfter=8,
+            textColor=colors.HexColor("#111827"),
+        ),
+        "h3": ParagraphStyle(
+            "Heading3Custom",
+            parent=stylesheet["Heading3"],
+            fontName="Helvetica-Bold",
+            fontSize=12,
+            leading=15,
+            spaceBefore=8,
+            spaceAfter=6,
+            textColor=colors.HexColor("#111827"),
+        ),
+        "h4": ParagraphStyle(
+            "Heading4Custom",
+            parent=stylesheet["Heading4"],
+            fontName="Helvetica-Bold",
+            fontSize=11,
+            leading=14,
+            spaceBefore=6,
+            spaceAfter=4,
+            textColor=colors.HexColor("#111827"),
+        ),
+        "body": ParagraphStyle(
+            "BodyCustom",
+            parent=stylesheet["BodyText"],
+            fontName="Helvetica",
+            fontSize=10,
+            leading=14,
+            spaceAfter=8,
+            textColor=colors.HexColor("#1f2937"),
+        ),
+        "code": ParagraphStyle(
+            "CodeLabel",
+            parent=stylesheet["BodyText"],
+            fontName="Helvetica-Bold",
+            fontSize=9,
+            leading=11,
+            spaceBefore=4,
+            spaceAfter=4,
+            textColor=colors.HexColor("#374151"),
+        ),
+    }
+
+
+def build_markdown_flowables(markdown_text: str) -> list[object]:
+    lines = markdown_text.splitlines()
+    styles = build_styles()
+    flowables: list[object] = []
+    index = 0
+
+    while index < len(lines):
+        raw_line = lines[index]
         stripped = raw_line.strip()
 
-        if stripped.startswith("```"):
-            in_code_block = not in_code_block
-            continue
-
-        if in_code_block:
-            lines.append((raw_line.rstrip(), CODE_FONT, CODE_FONT_SIZE))
-            continue
-
         if not stripped:
-            lines.append(("", BODY_FONT, BODY_FONT_SIZE))
+            flowables.append(Spacer(1, 0.08 * inch))
+            index += 1
             continue
 
         if stripped.startswith("# "):
-            lines.append((stripped[2:].strip(), "Helvetica-Bold", 20))
+            flowables.append(Paragraph(convert_inline_markdown(stripped[2:].strip()), styles["title"]))
+            index += 1
             continue
 
         if stripped.startswith("## "):
-            lines.append((stripped[3:].strip(), "Helvetica-Bold", 16))
+            flowables.append(Paragraph(convert_inline_markdown(stripped[3:].strip()), styles["h2"]))
+            index += 1
             continue
 
         if stripped.startswith("### "):
-            lines.append((stripped[4:].strip(), "Helvetica-Bold", 14))
+            flowables.append(Paragraph(convert_inline_markdown(stripped[4:].strip()), styles["h3"]))
+            index += 1
             continue
 
         if stripped.startswith("#### "):
-            lines.append((stripped[5:].strip(), "Helvetica-Bold", 12))
+            flowables.append(Paragraph(convert_inline_markdown(stripped[5:].strip()), styles["h4"]))
+            index += 1
+            continue
+
+        if stripped.startswith("```"):
+            code_lines, index = collect_code_block(lines, index)
+            flowables.append(Paragraph("Code Block", styles["code"]))
+            flowables.append(
+                Preformatted(
+                    "\n".join(code_lines),
+                    ParagraphStyle(
+                        "CodeBlock",
+                        fontName="Courier",
+                        fontSize=8.5,
+                        leading=10,
+                        leftIndent=10,
+                        rightIndent=10,
+                        borderWidth=0.5,
+                        borderColor=colors.HexColor("#d1d5db"),
+                        borderPadding=8,
+                        backColor=colors.HexColor("#f3f4f6"),
+                        spaceAfter=10,
+                    ),
+                )
+            )
+            continue
+
+        if is_table_line(raw_line):
+            table_lines, index = collect_table(lines, index)
+            table_rows = parse_table(table_lines)
+            table = Table(table_rows, repeatRows=1, hAlign="LEFT")
+            table.setStyle(
+                TableStyle(
+                    [
+                        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e5e7eb")),
+                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#111827")),
+                        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                        ("FONTSIZE", (0, 0), (-1, -1), 9),
+                        ("LEADING", (0, 0), (-1, -1), 11),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                        ("TOPPADDING", (0, 0), (-1, -1), 5),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                    ]
+                )
+            )
+            flowables.append(table)
+            flowables.append(Spacer(1, 0.12 * inch))
             continue
 
         if stripped.startswith(("- ", "* ")):
-            lines.append((f"• {stripped[2:].strip()}", BODY_FONT, BODY_FONT_SIZE))
+            bullet_lines, index = collect_bullets(lines, index)
+            bullet_items = [
+                ListItem(Paragraph(convert_inline_markdown(item), styles["body"]))
+                for item in bullet_lines
+            ]
+            flowables.append(
+                ListFlowable(
+                    bullet_items,
+                    bulletType="bullet",
+                    leftIndent=18,
+                    bulletFontName="Helvetica",
+                    bulletFontSize=10,
+                )
+            )
+            flowables.append(Spacer(1, 0.08 * inch))
             continue
 
-        lines.append((raw_line.rstrip(), BODY_FONT, BODY_FONT_SIZE))
+        paragraph_lines, index = collect_paragraph(lines, index)
+        paragraph_text = " ".join(paragraph_lines)
+        flowables.append(Paragraph(convert_inline_markdown(paragraph_text), styles["body"]))
 
-    return lines
+    return flowables
 
 
 def render_markdown_to_pdf(markdown_text: str, output_path: Path) -> None:
-    pdf = canvas.Canvas(str(output_path), pagesize=PAGE_SIZE)
-    page_width, page_height = PAGE_SIZE
-    max_width = page_width - LEFT_MARGIN - RIGHT_MARGIN
-    y_position = page_height - TOP_MARGIN
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    document = SimpleDocTemplate(
+        str(output_path),
+        pagesize=LETTER,
+        leftMargin=0.7 * inch,
+        rightMargin=0.7 * inch,
+        topMargin=0.7 * inch,
+        bottomMargin=0.7 * inch,
+        title=output_path.stem,
+    )
+    document.build(build_markdown_flowables(markdown_text))
 
-    def next_line(font_size: int) -> None:
-        nonlocal y_position
-        y_position -= font_size + LINE_GAP
-        if y_position <= BOTTOM_MARGIN:
-            pdf.showPage()
-            y_position = page_height - TOP_MARGIN
 
-    for text, font_name, font_size in iter_markdown_lines(markdown_text):
-        pdf.setFont(font_name, font_size)
-
-        wrapped_lines = (
-            [text]
-            if font_name == CODE_FONT
-            else wrap_text(text, font_name, font_size, max_width)
-        )
-
-        for wrapped_line in wrapped_lines:
-            pdf.drawString(LEFT_MARGIN, y_position, wrapped_line)
-            next_line(font_size)
-
-        if text == "":
-            next_line(font_size)
-
-    pdf.save()
+def default_output_path(input_path: Path) -> Path:
+    if input_path.parent.name == "md" and input_path.parent.parent.exists():
+        demo_root = input_path.parent.parent
+        return demo_root / "pdf" / f"{input_path.stem}.pdf"
+    return input_path.with_suffix(".pdf")
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     input_path = Path(args.markdown_file)
-    output_path = Path(args.output) if args.output else input_path.with_suffix(".pdf")
+    output_path = Path(args.output) if args.output else default_output_path(input_path)
 
     try:
         markdown_text = input_path.read_text(encoding="utf-8")
