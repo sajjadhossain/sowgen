@@ -9,21 +9,21 @@ team:
   size: 4
   members:
     - role: "Project Manager"
-      name: "Jordan Reeves"
-      email: "jordan.reeves@abccorp.example"
-      phone: "+1-312-555-0142"
-    - role: "Senior Developer"
-      name: "Priya Shah"
-      email: "priya.shah@abccorp.example"
-      phone: "+1-312-555-0168"
-    - role: "UI/UX Designer"
-      name: "Avery Collins"
+      name: "Iftekher Hossain"
+      email: "iftekher.hossain2@gmail.com"
+      phone: "+880-1625077554"
+    - role: "Developer"
+      name: "Amit Aditiya"
+      email: ""
+      phone: "+880-1911817331"
+    - role: "Devoloper"
+      name: "Khondokar Serajul Islam"
       email: "avery.collins@abccorp.example"
-      phone: "+1-312-555-0185"
-    - role: "QA Engineer"
-      name: "Marcus Bennett"
-      email: "marcus.bennett@abccorp.example"
-      phone: "+1-312-555-0131"
+      phone: "+880-1309221155"
+    - role: "Consultant"
+      name: "Sajjad Hossain"
+      email: "hello@sajjad.nyc"
+      phone: "+1-347-661-3441"
 
 kanban:
   description: "This engagement will follow a technical Kanban workflow so the team can modernize the application iteratively while keeping Airtable integration, UI, and deployment work visible."
@@ -73,6 +73,7 @@ deliverables:
     name: "Signed SOW contract for Airtable Wrapper"
     description: "The generated SOW uses Gherkin user story language, includes a table of contents, and incorporates a technical Kanban approach suitable for small development teams. The primary outcome is an estimate of the workload price."
     access_details: "Developers will access the wrapper through the project repository and the documented integration entry points."
+
 milestones:
   - name: "Discovery and Architecture Baseline"
     due_date: "2026-04-15"
@@ -82,6 +83,6 @@ milestones:
       - "React architecture and delivery backlog"
 
 pricing:
-  hourly_rate: 95.00
+  hourly_rate: 95
   overhead: 0.25
-  profit_margin: 0.20
+  profit_margin: 0.2
